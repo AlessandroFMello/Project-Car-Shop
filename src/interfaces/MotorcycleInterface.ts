@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Vehicle, vehicleSchema } from './VehicleInterface';
 
-const motorcycleSchema = vehicleSchema.extend({
+export const motorcycleSchema = vehicleSchema.extend({
   category: z.string({
     required_error: 'Category is required',
     invalid_type_error: 'Category must be a string',
@@ -9,10 +9,15 @@ const motorcycleSchema = vehicleSchema.extend({
   engineCapacity: z.number({
     required_error: 'Engine capacity is required',
     invalid_type_error: 'Engine capacity must be a number',
-  }).max(
-    2500,
-    { message: 'Engine capacity must be equal or less than 2500' },
-  ),
+  })
+    .min(
+      1,
+      { message: 'Engine capacity must be greater than 0' },
+    )
+    .max(
+      2500,
+      { message: 'Engine capacity must be equal or less than 2500' },
+    ),
   _id: z.optional(
     z.string({ invalid_type_error: 'Id must be a string' })
       .regex(
