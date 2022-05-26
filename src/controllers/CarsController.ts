@@ -56,8 +56,8 @@ export default class CarsController extends Controller<Car> {
     res: Response<Car | ResponseError>,
   ): Promise<typeof res> => {
     const { id } = req.params;
-
-    if (!id) {
+    const hexadecimal = /[0-9A-Fa-f]{24}/g;
+    if (!hexadecimal.test(id)) {
       return res.status(400).json({ error: this.errors.requiredId });
     }
 
@@ -67,7 +67,6 @@ export default class CarsController extends Controller<Car> {
       if (!car) {
         return res.status(404).json({ error: this.errors.notFound });
       }
-      if ('error' in car) res.status(400).json(car);
       return res.json(car);
     } catch (err) {
       console.error(err);
