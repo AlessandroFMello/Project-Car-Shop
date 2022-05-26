@@ -76,23 +76,24 @@ export default class CarsController extends Controller<Car> {
 
   update = async (
     req: Request<{ id: string }, Car>,
-    res: Response<Car | ResponseError | null>,
+    res: Response<Car | ResponseError>,
   ): Promise<typeof res> => {
-    const { id } = req.params;
-    const { body } = req;
-
-    if (!id) {
+    const hexadecimal = /[0-9A-Fa-f]{24}/g;
+    if (!hexadecimal.test(req.params.id)) {
       return res.status(400).json({ error: this.errors.requiredId });
     }
 
+    if (Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: this.errors.badRequest });
+    }
+
     try {
-      const updatedCar = await this.service.update(id, body);
+      const updatedCar = await this.service.update(req.params.id, req.body);
 
-      if (!updatedCar) res.status(404).json({ error: this.errors.notFound });
-
-      return res.json(updatedCar);
+      return !updatedCar 
+        ? res.status(404).json({ error: this.errors.notFound }) 
+        : res.json(updatedCar);
     } catch (err) {
-      console.error(err);
       return res.status(500).json({ error: this.errors.internal });
     }
   };
@@ -103,7 +104,8 @@ export default class CarsController extends Controller<Car> {
   ): Promise<typeof res> => {
     const { id } = req.params;
 
-    if (!id) {
+    const hexadecimal = /[0-9A-Fa-f]{24}/g;
+    if (!hexadecimal.test(id)) {
       return res.status(400).json({ error: this.errors.requiredId });
     }
 
