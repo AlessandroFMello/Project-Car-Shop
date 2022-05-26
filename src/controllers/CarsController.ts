@@ -116,7 +116,7 @@ export default class CarsController extends Controller<Car> {
         return res.status(404).json({ error: this.errors.notFound });
       }
 
-      return res.status(200).json(deletedCar);
+      return res.status(204).json(deletedCar);
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: this.errors.internal });
