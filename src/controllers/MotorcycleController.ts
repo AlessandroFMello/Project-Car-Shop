@@ -21,34 +21,26 @@ export default class MotorcycleController extends Controller<Motorcycle> {
     res: Response<Motorcycle | ResponseError>,
   ): Promise<typeof res> => {
     const { body } = req;
-    try {
-      const newMotorcycle = await this.service.create(body);
+    const newMotorcycle = await this.service.create(body);
 
-      if (!newMotorcycle) {
-        return res.status(400).json({ error: this.errors.badRequest });
-      }
-      if ('error' in newMotorcycle) {
-        return res.status(400).json(newMotorcycle);
-      }
-      return res.status(201).json(newMotorcycle);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: this.errors.internal });
+    if (!newMotorcycle) {
+      return res
+        .status(400)
+        .json({ error: this.errors.badRequest });
     }
+    if ('error' in newMotorcycle) {
+      return res.status(400).json(newMotorcycle);
+    }
+    return res.status(201).json(newMotorcycle);
   };
 
   read = async (
     _req: Request,
     res: Response<Motorcycle[] | ResponseError>,
   ): Promise<typeof res> => {
-    try {
-      const motorcycles = await this.service.read();
+    const motorcycles = await this.service.read();
       
-      return res.json(motorcycles);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: this.errors.internal });
-    }
+    return res.json(motorcycles);
   };
 
   readOne = async (
@@ -58,27 +50,30 @@ export default class MotorcycleController extends Controller<Motorcycle> {
     const { id } = req.params;
     const hexadecimal = /[0-9A-Fa-f]{24}/g;
     if (!hexadecimal.test(id)) {
-      return res.status(400).json({ error: this.errors.requiredId });
+      return res
+        .status(400)
+        .json({ error: this.errors.requiredId });
     }
 
-    try {
-      const motorcycle = await this.service.readOne(id);
+    const motorcycle = await this.service.readOne(id);
 
-      if (!motorcycle) {
-        return res.status(404).json({ error: this.errors.notFound });
-      }
-      return res.json(motorcycle);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: this.errors.internal });
+    if (!motorcycle) {
+      return res
+        .status(404)
+        .json({ error: this.errors.notFound });
     }
+
+    return res.json(motorcycle);
   };
 
   update = async (
     req: Request<{ id: string }, Motorcycle>,
     res: Response<Motorcycle | ResponseError>,
   ): Promise<typeof res> => {
+    const { id } = req.params;
+    const { body } = req;
     const hexadecimal = /[0-9A-Fa-f]{24}/g;
+
     if (!hexadecimal.test(req.params.id)) {
       return res.status(400).json({ error: this.errors.requiredId });
     }
@@ -87,15 +82,11 @@ export default class MotorcycleController extends Controller<Motorcycle> {
       return res.status(400).json({ error: this.errors.badRequest });
     }
 
-    try {
-      const updatedMoto = await this.service.update(req.params.id, req.body);
+    const updatedMoto = await this.service.update(id, body);
 
-      return !updatedMoto
-        ? res.status(404).json({ error: this.errors.notFound }) 
-        : res.json(updatedMoto);
-    } catch (err) {
-      return res.status(500).json({ error: this.errors.internal });
-    }
+    return !updatedMoto
+      ? res.status(404).json({ error: this.errors.notFound }) 
+      : res.json(updatedMoto);
   };
 
   delete = async (
@@ -105,21 +96,21 @@ export default class MotorcycleController extends Controller<Motorcycle> {
     const { id } = req.params;
 
     const hexadecimal = /[0-9A-Fa-f]{24}/g;
+
     if (!hexadecimal.test(id)) {
-      return res.status(400).json({ error: this.errors.requiredId });
+      return res
+        .status(400)
+        .json({ error: this.errors.requiredId });
     }
 
-    try {
-      const deletedMotorcycle = await this.service.delete(id);
+    const deletedMotorcycle = await this.service.delete(id);
 
-      if (!deletedMotorcycle) {
-        return res.status(404).json({ error: this.errors.notFound });
-      }
-
-      return res.status(204).json(deletedMotorcycle);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: this.errors.internal });
+    if (!deletedMotorcycle) {
+      return res
+        .status(404)
+        .json({ error: this.errors.notFound });
     }
+
+    return res.status(204).json(deletedMotorcycle);
   };
 }
